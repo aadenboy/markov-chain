@@ -2,7 +2,7 @@ local bitser = require("bitser")
 
 local tokens = {}
 
-local file = io.open("source.txt", "r")
+local file = io.open("aadenyt.txt", "r")
 
 local prevtoken
 local token = ""

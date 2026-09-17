@@ -1,5 +1,11 @@
 local tokens = {}
-local file = io.open("aadenyt.txt", "r")
+local file = io.open("eras.txt", "r")
+
+local minhits = 3
+local pruning = 0.5
+local fnordword = {"end", ", "}
+local genwords = {40, 120}
+--local order = 1
 
 local prevtoken
 local token = ""
@@ -38,14 +44,14 @@ while true do
 end
 file:close()
 
-local fnord = {
+local fnord = tokens[fnordword[1]] or {
     token = "fnord",
     type = "word",
     hits = -1,
     total = 0,
     next = {}
 }
-local fnordpunc = {
+local fnordpunc = tokens[fnordword[2]] or {
     token = " fnord. ",
     type = "punctuation",
     hits = -1,
@@ -59,7 +65,7 @@ for i,v in pairs(tokens) do
         for o,b in pairs(v.next) do
             sum = sum + b
         end
-        local average = sum / v.total
+        local average = pruning * sum / v.total
         for o,b in pairs(v.next) do
             if b < average then
                 v.next[o] = nil
@@ -70,8 +76,10 @@ for i,v in pairs(tokens) do
     end
 end
 local total = 0
+local actual = 0
 for i,v in pairs(tokens) do
-    if v.hits < 4 or v.total == 0 then
+    actual = actual + 1
+    if v.hits < minhits or v.total == 0 then
         --print("Fnorded: "..i.." ("..v.type..")")
         v.fnorded = true
         local obj = v.type == "word" and fnord or fnordpunc
@@ -87,7 +95,7 @@ end
 
 tokens.__fnord = fnord
 tokens.__fnordpunc = fnordpunc
-print(total.." non-fnorded tokens, "..trimmed.." trimmed connections")
+print(total.." non-fnorded tokens out of "..actual.." tokens; "..trimmed.." pruned connections")
 
 local possibilities = {}
 local ptotal = 0
@@ -108,7 +116,7 @@ for i,v in ipairs(possibilities) do
 end
 
 local output = ""
-for i=1, math.random(40, 120) do
+for i=1, math.random(genwords[1], genwords[2]) do
     output = output..current.token
     local nexts = {}
     local ntotal = 0
