@@ -22,21 +22,21 @@ for i,v in ipairs(possibilities) do
 end
 
 local output = ""
-for i=1, math.random(20, 80) do
+for i=1, math.random(40, 120) do
     output = output..current.token
     local nexts = {}
     local ntotal = 0
     for i,v in pairs(current.next) do
         local token = tokens[i]
-        nexts[#nexts+1] = token
-        ntotal = ntotal + token.hits
+        nexts[#nexts+1] = {token, v}
+        ntotal = ntotal + v
     end
     local nvalue = math.random(1, ntotal)
     local next = tokens.__fnord
     for i,v in ipairs(nexts) do
-        nvalue = nvalue - v.hits
+        nvalue = nvalue - v[2]
         if nvalue <= 0 then
-            next = v
+            next = v[1]
             break
         end
     end
